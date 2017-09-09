@@ -1,2 +1,2 @@
 # programming_notebooks
-notebooks that I use for teaching.
+notebooks that I use for teaching
