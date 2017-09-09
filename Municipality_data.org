@@ -32,11 +32,14 @@ import pandas as pd
 df_gemeente = pd.read_csv('Vektis_Open_Databestand_Zorgverzekeringswet_2014_-_gemeente.csv', sep = ';')
 
 df_gemeente.head(10)
+
+%matplotlib inline
 #+END_SRC
 
-
+#+RESULTS:
 :RESULTS:
-GESLACHT LEEFTIJDSKLASSE   GEMEENTENAAM  AANTAL_BSN  AANTAL_VERZEKERDEJAREN  \
+
+  GESLACHT LEEFTIJDSKLASSE   GEMEENTENAAM  AANTAL_BSN  AANTAL_VERZEKERDEJAREN  \
 0      NaN             NaN            NaN      298383               185664.92   
 1        M   0 t/m  4 jaar    AA EN HUNZE         507                  468.83   
 2        M   0 t/m  4 jaar        AALBURG         428                  387.28   
@@ -422,6 +425,7 @@ GESLACHT LEEFTIJDSKLASSE   GEMEENTENAAM  AANTAL_BSN  AANTAL_VERZEKERDEJAREN  \
 #+END_EXPORT
 :END:
 
+
 We are going to be interested in total health care costs under the deductible. Hence, we specify the categories that fall under the deductible in the Netherlands in 2014.
 Further, we want to do this analysis in English. So we relabel the relevant column names into English.
 
@@ -455,9 +459,39 @@ df_gemeente = df_gemeente.rename_axis({
 df_gemeente.dtypes
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+
+sex                                     object
+age                                     object
+MUNICIPALITY                            object
+number_citizens                          int64
+AANTAL_VERZEKERDEJAREN                 float64
+hospital_care                          float64
+pharmaceuticals                        float64
+mental_care                            float64
+GP_capitation                          float64
+GP_fee_for_service                     float64
+GP_other                               float64
+KOSTEN_HULPMIDDELEN                    float64
+dental care                            float64
+physiotherapy                          float64
+KOSTEN_PARAMEDISCHE_ZORG_OVERIG        float64
+KOSTEN_ZIEKENVERVOER_ZITTEND           float64
+KOSTEN_ZIEKENVERVOER_LIGGEND           float64
+maternity_care                         float64
+obstetrics                             float64
+KOSTEN_GENERALISTISCHE_BASIS_GGZ       float64
+KOSTEN_GRENSOVERSCHRIJDENDE_ZORG       float64
+KOSTEN_EERSTELIJNS_ONDERSTEUNING       float64
+KOSTEN_GERIATRISCHE_REVALIDATIEZORG    float64
+KOSTEN_OVERIG                          float64
+health_expenditure_under_deductible    float64
+dtype: object
+:END:
+
 We drop the columns that we no longer need.
 
-#+NAME: kitten-quebec-hawaii-william
 #+BEGIN_SRC ipython :session :results output drawer
 df_gemeente.drop(['AANTAL_VERZEKERDEJAREN',
 'KOSTEN_HULPMIDDELEN',
@@ -472,6 +506,15 @@ df_gemeente.drop(['AANTAL_VERZEKERDEJAREN',
 df_gemeente.columns
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+
+Index(['sex', 'age', 'MUNICIPALITY', 'number_citizens', 'hospital_care',
+       'pharmaceuticals', 'mental_care', 'GP_capitation', 'GP_fee_for_service',
+       'GP_other', 'dental care', 'physiotherapy', 'maternity_care',
+       'obstetrics', 'health_expenditure_under_deductible'],
+      dtype='object')
+:END:
 
 Let's look again at the first couple of lines of our data set. The ~head~ method presents the first 5 line as default.
 
@@ -479,12 +522,312 @@ Let's look again at the first couple of lines of our data set. The ~head~ method
 df_gemeente.head()
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+
+   sex             age MUNICIPALITY  number_citizens  hospital_care  \
+0  NaN             NaN          NaN           298383    48661669.94   
+1    M   0 t/m  4 jaar  AA EN HUNZE              507      473370.77   
+2    M   0 t/m  4 jaar      AALBURG              428      340442.37   
+3    M   0 t/m  4 jaar     AALSMEER              876      932841.57   
+4    M   0 t/m  4 jaar       AALTEN              667      515879.78   
+
+   pharmaceuticals  mental_care  GP_capitation  GP_fee_for_service  \
+0       9219422.33   7475481.90     4092492.35          1388439.07   
+1         43305.49     14056.81       26239.56            12829.29   
+2         23395.86      5555.83       21673.15             9417.98   
+3         54597.52     34355.66       43971.27            22413.37   
+4         43516.71      2404.19       33749.10            18472.64   
+
+     GP_other  dental care  physiotherapy  maternity_care  obstetrics  \
+0  3041904.41   1249229.61      418648.30       1286545.5  1072906.37   
+1    36034.65      9311.14       15968.80             0.0        0.00   
+2    20159.19      7213.81        6135.05             0.0        0.00   
+3    61629.32     19042.00       20086.43             0.0        0.00   
+4    46720.61     12909.41       20762.75             0.0        0.00   
+
+   health_expenditure_under_deductible  
+0                          86677435.03  
+1                            576750.31  
+2                            406856.55  
+3                           1093297.37  
+4                            652523.86  
+#+BEGIN_EXPORT HTML
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sex</th>
+      <th>age</th>
+      <th>MUNICIPALITY</th>
+      <th>number_citizens</th>
+      <th>hospital_care</th>
+      <th>pharmaceuticals</th>
+      <th>mental_care</th>
+      <th>GP_capitation</th>
+      <th>GP_fee_for_service</th>
+      <th>GP_other</th>
+      <th>dental care</th>
+      <th>physiotherapy</th>
+      <th>maternity_care</th>
+      <th>obstetrics</th>
+      <th>health_expenditure_under_deductible</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>298383</td>
+      <td>48661669.94</td>
+      <td>9219422.33</td>
+      <td>7475481.90</td>
+      <td>4092492.35</td>
+      <td>1388439.07</td>
+      <td>3041904.41</td>
+      <td>1249229.61</td>
+      <td>418648.30</td>
+      <td>1286545.5</td>
+      <td>1072906.37</td>
+      <td>86677435.03</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>M</td>
+      <td>0 t/m  4 jaar</td>
+      <td>AA EN HUNZE</td>
+      <td>507</td>
+      <td>473370.77</td>
+      <td>43305.49</td>
+      <td>14056.81</td>
+      <td>26239.56</td>
+      <td>12829.29</td>
+      <td>36034.65</td>
+      <td>9311.14</td>
+      <td>15968.80</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>576750.31</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>M</td>
+      <td>0 t/m  4 jaar</td>
+      <td>AALBURG</td>
+      <td>428</td>
+      <td>340442.37</td>
+      <td>23395.86</td>
+      <td>5555.83</td>
+      <td>21673.15</td>
+      <td>9417.98</td>
+      <td>20159.19</td>
+      <td>7213.81</td>
+      <td>6135.05</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>406856.55</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>M</td>
+      <td>0 t/m  4 jaar</td>
+      <td>AALSMEER</td>
+      <td>876</td>
+      <td>932841.57</td>
+      <td>54597.52</td>
+      <td>34355.66</td>
+      <td>43971.27</td>
+      <td>22413.37</td>
+      <td>61629.32</td>
+      <td>19042.00</td>
+      <td>20086.43</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>1093297.37</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>M</td>
+      <td>0 t/m  4 jaar</td>
+      <td>AALTEN</td>
+      <td>667</td>
+      <td>515879.78</td>
+      <td>43516.71</td>
+      <td>2404.19</td>
+      <td>33749.10</td>
+      <td>18472.64</td>
+      <td>46720.61</td>
+      <td>12909.41</td>
+      <td>20762.75</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>652523.86</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+#+END_EXPORT
+:END:
+
 We are not interested in the first line, so we drop it. Indeed, our data set now starts with the first municipality 'AA EN HUNZE'.
 
 #+BEGIN_SRC ipython :session :results value
 df_gemeente.drop(df_gemeente.index[[0]], inplace=True)
 df_gemeente.head()
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+
+  sex             age   MUNICIPALITY  number_citizens  hospital_care  \
+1   M   0 t/m  4 jaar    AA EN HUNZE              507      473370.77   
+2   M   0 t/m  4 jaar        AALBURG              428      340442.37   
+3   M   0 t/m  4 jaar       AALSMEER              876      932841.57   
+4   M   0 t/m  4 jaar         AALTEN              667      515879.78   
+5   M   0 t/m  4 jaar  ACHTKARSPELEN              810      766456.80   
+
+   pharmaceuticals  mental_care  GP_capitation  GP_fee_for_service  GP_other  \
+1         43305.49     14056.81       26239.56            12829.29  36034.65   
+2         23395.86      5555.83       21673.15             9417.98  20159.19   
+3         54597.52     34355.66       43971.27            22413.37  61629.32   
+4         43516.71      2404.19       33749.10            18472.64  46720.61   
+5         88084.16      6681.81       41477.79            19157.34  53633.01   
+
+   dental care  physiotherapy  maternity_care  obstetrics  \
+1      9311.14       15968.80             0.0         0.0   
+2      7213.81        6135.05             0.0         0.0   
+3     19042.00       20086.43             0.0         0.0   
+4     12909.41       20762.75             0.0         0.0   
+5     16695.10       23423.96             0.0         0.0   
+
+   health_expenditure_under_deductible  
+1                            576750.31  
+2                            406856.55  
+3                           1093297.37  
+4                            652523.86  
+5                            954494.16  
+#+BEGIN_EXPORT HTML
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sex</th>
+      <th>age</th>
+      <th>MUNICIPALITY</th>
+      <th>number_citizens</th>
+      <th>hospital_care</th>
+      <th>pharmaceuticals</th>
+      <th>mental_care</th>
+      <th>GP_capitation</th>
+      <th>GP_fee_for_service</th>
+      <th>GP_other</th>
+      <th>dental care</th>
+      <th>physiotherapy</th>
+      <th>maternity_care</th>
+      <th>obstetrics</th>
+      <th>health_expenditure_under_deductible</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>M</td>
+      <td>0 t/m  4 jaar</td>
+      <td>AA EN HUNZE</td>
+      <td>507</td>
+      <td>473370.77</td>
+      <td>43305.49</td>
+      <td>14056.81</td>
+      <td>26239.56</td>
+      <td>12829.29</td>
+      <td>36034.65</td>
+      <td>9311.14</td>
+      <td>15968.80</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>576750.31</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>M</td>
+      <td>0 t/m  4 jaar</td>
+      <td>AALBURG</td>
+      <td>428</td>
+      <td>340442.37</td>
+      <td>23395.86</td>
+      <td>5555.83</td>
+      <td>21673.15</td>
+      <td>9417.98</td>
+      <td>20159.19</td>
+      <td>7213.81</td>
+      <td>6135.05</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>406856.55</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>M</td>
+      <td>0 t/m  4 jaar</td>
+      <td>AALSMEER</td>
+      <td>876</td>
+      <td>932841.57</td>
+      <td>54597.52</td>
+      <td>34355.66</td>
+      <td>43971.27</td>
+      <td>22413.37</td>
+      <td>61629.32</td>
+      <td>19042.00</td>
+      <td>20086.43</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1093297.37</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>M</td>
+      <td>0 t/m  4 jaar</td>
+      <td>AALTEN</td>
+      <td>667</td>
+      <td>515879.78</td>
+      <td>43516.71</td>
+      <td>2404.19</td>
+      <td>33749.10</td>
+      <td>18472.64</td>
+      <td>46720.61</td>
+      <td>12909.41</td>
+      <td>20762.75</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>652523.86</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>M</td>
+      <td>0 t/m  4 jaar</td>
+      <td>ACHTKARSPELEN</td>
+      <td>810</td>
+      <td>766456.80</td>
+      <td>88084.16</td>
+      <td>6681.81</td>
+      <td>41477.79</td>
+      <td>19157.34</td>
+      <td>53633.01</td>
+      <td>16695.10</td>
+      <td>23423.96</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>954494.16</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+#+END_EXPORT
+:END:
 
 :RESULTS:
   sex             age   MUNICIPALITY  number_citizens  hospital_care  \
@@ -516,15 +859,15 @@ df_gemeente.head()
 5                            954494.16  
 :END:
 
-
-
 Now let's consider data types. 
 
 #+BEGIN_SRC ipython :session :results output drawer
 df_gemeente.dtypes
 #+END_SRC
 
+#+RESULTS:
 :RESULTS:
+
 sex                                     object
 age                                     object
 MUNICIPALITY                            object
@@ -551,6 +894,7 @@ df_gemeente['age'] = df_gemeente['age'].astype('category')
 df_gemeente.info()
 #+END_SRC
 
+#+RESULTS:
 :RESULTS:
 <class 'pandas.core.frame.DataFrame'>
 Int64Index: 14808 entries, 1 to 14808
@@ -572,6 +916,7 @@ obstetrics                             14808 non-null float64
 health_expenditure_under_deductible    14808 non-null float64
 dtypes: category(2), float64(11), int64(1), object(1)
 memory usage: 1.6+ MB
+
 :END:
 
 We can select rows from a dataframe using ~loc~. Below, we consider the municipality Breda and people between 10 and 14 years old.
@@ -580,8 +925,10 @@ We can select rows from a dataframe using ~loc~. Below, we consider the municipa
 df_gemeente.loc[(df_gemeente.MUNICIPALITY == 'BREDA') & (df_gemeente['age'] == '10 t/m 14 jaar')]
 #+END_SRC
 
+#+RESULTS:
 :RESULTS:
-sex             age MUNICIPALITY  number_citizens  hospital_care  \
+
+     sex             age MUNICIPALITY  number_citizens  hospital_care  \
 832    M  10 t/m 14 jaar        BREDA             5206     2215947.11   
 8234   V  10 t/m 14 jaar        BREDA             4915     1425550.97   
 
@@ -668,10 +1015,21 @@ If we are interested in one variable, e.g. ~number_citizens~, we can select this
 df_gemeente.loc[(df_gemeente.MUNICIPALITY == 'BREDA') & (df_gemeente['age'] == '10 t/m 14 jaar')]['number_citizens']
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+
+832     5206
+8234    4915
+Name: number_citizens, dtype: int64
+:END:
+
+Note that the first number in each row is the index that pandas uses. 
 
 ---------------
 
 *Exercise*
+
+Why do we get two rows?
 
 Calculate how many citizens live in Breda between the age of 10 and 14.
 
@@ -683,14 +1041,15 @@ We can also give lists of row values that we are interested in:
 df_gemeente.loc[(df_gemeente.MUNICIPALITY.isin(['BREDA', 'TILBURG'])) & (df_gemeente['age'] == '10 t/m 14 jaar')]['number_citizens']
 #+END_SRC
 
+#+RESULTS:
 :RESULTS:
+
 832     5206
 1098    5817
 8234    4915
 8500    5651
 Name: number_citizens, dtype: int64
 :END:
-
 
 ----------------
 
@@ -722,7 +1081,36 @@ df_gem_merged = pd.merge(df_gemeente,Gemeentes,on=['MUNICIPALITY'],how='left')
 df_gem_merged.head()
 #+END_SRC
 
+#+RESULTS:
 :RESULTS:
+
+  sex             age   MUNICIPALITY  number_citizens  hospital_care  \
+0   M   0 t/m  4 jaar    AA EN HUNZE              507      473370.77   
+1   M   0 t/m  4 jaar        AALBURG              428      340442.37   
+2   M   0 t/m  4 jaar       AALSMEER              876      932841.57   
+3   M   0 t/m  4 jaar         AALTEN              667      515879.78   
+4   M   0 t/m  4 jaar  ACHTKARSPELEN              810      766456.80   
+
+   pharmaceuticals  mental_care  GP_capitation  GP_fee_for_service  GP_other  \
+0         43305.49     14056.81       26239.56            12829.29  36034.65   
+1         23395.86      5555.83       21673.15             9417.98  20159.19   
+2         54597.52     34355.66       43971.27            22413.37  61629.32   
+3         43516.71      2404.19       33749.10            18472.64  46720.61   
+4         88084.16      6681.81       41477.79            19157.34  53633.01   
+
+   dental care  physiotherapy  maternity_care  obstetrics  \
+0      9311.14       15968.80             0.0         0.0   
+1      7213.81        6135.05             0.0         0.0   
+2     19042.00       20086.43             0.0         0.0   
+3     12909.41       20762.75             0.0         0.0   
+4     16695.10       23423.96             0.0         0.0   
+
+   health_expenditure_under_deductible   Municipality  
+0                            576750.31    Aa en Hunze  
+1                            406856.55        Aalburg  
+2                           1093297.37       Aalsmeer  
+3                            652523.86         Aalten  
+4                            954494.16  Achtkarspelen  
 #+BEGIN_EXPORT HTML
 <div>
 <table border="1" class="dataframe">
@@ -847,33 +1235,6 @@ df_gem_merged.head()
 </table>
 </div>
 #+END_EXPORT
-  sex             age   MUNICIPALITY  number_citizens  hospital_care  \
-0   M   0 t/m  4 jaar    AA EN HUNZE              507      473370.77
-1   M   0 t/m  4 jaar        AALBURG              428      340442.37
-2   M   0 t/m  4 jaar       AALSMEER              876      932841.57
-3   M   0 t/m  4 jaar         AALTEN              667      515879.78
-4   M   0 t/m  4 jaar  ACHTKARSPELEN              810      766456.80
-
-   pharmaceuticals  mental_care  GP_capitation  GP_fee_for_service  GP_other  \
-0         43305.49     14056.81       26239.56            12829.29  36034.65
-1         23395.86      5555.83       21673.15             9417.98  20159.19
-2         54597.52     34355.66       43971.27            22413.37  61629.32
-3         43516.71      2404.19       33749.10            18472.64  46720.61
-4         88084.16      6681.81       41477.79            19157.34  53633.01
-
-   dental care  physiotherapy  maternity_care  obstetrics  \
-0      9311.14       15968.80             0.0         0.0
-1      7213.81        6135.05             0.0         0.0
-2     19042.00       20086.43             0.0         0.0
-3     12909.41       20762.75             0.0         0.0
-4     16695.10       23423.96             0.0         0.0
-
-   health_expenditure_under_deductible   Municipality
-0                            576750.31    Aa en Hunze
-1                            406856.55        Aalburg
-2                           1093297.37       Aalsmeer
-3                            652523.86         Aalten
-4                            954494.16  Achtkarspelen
 :END:
 
 We are going to plot expenditure under the deductible per head for each municipality. We need a couple of steps in order to do this:
@@ -885,85 +1246,13 @@ With pandas this is straightforward to do using ~groupby~. We do the ~groupby~ o
 
 Then hospital care per head can be defined as the total expenditure per municipality divided by the total number of citizens per municipality.
 
-#+NAME: thirteen-november-angel-delaware
 #+BEGIN_SRC ipython :session :results output drawer
 results = df_gem_merged.groupby('Municipality')[['health_expenditure_under_deductible','number_citizens']].sum()
 results['expenditure_per_head'] = results['health_expenditure_under_deductible']/results['number_citizens']
-results.head()
 #+END_SRC
 
-#+RESULTS: thirteen-november-angel-delaware
-:RESULTS:
-#+BEGIN_EXPORT HTML
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>health_expenditure_under_deductible</th>
-      <th>number_citizens</th>
-      <th>expenditure_per_head</th>
-    </tr>
-    <tr>
-      <th>Municipality</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>'s-Gravenhage</th>
-      <td>9.115807e+08</td>
-      <td>509206</td>
-      <td>1790.200148</td>
-    </tr>
-    <tr>
-      <th>'s-Hertogenbosch</th>
-      <td>2.697598e+08</td>
-      <td>151934</td>
-      <td>1775.506394</td>
-    </tr>
-    <tr>
-      <th>Aa en Hunze</th>
-      <td>4.696741e+07</td>
-      <td>25415</td>
-      <td>1848.019292</td>
-    </tr>
-    <tr>
-      <th>Aalburg</th>
-      <td>2.189368e+07</td>
-      <td>12871</td>
-      <td>1701.008568</td>
-    </tr>
-    <tr>
-      <th>Aalsmeer</th>
-      <td>4.864200e+07</td>
-      <td>31365</td>
-      <td>1550.837018</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-#+END_EXPORT
-                  health_expenditure_under_deductible  number_citizens  \
-Municipality
-'s-Gravenhage                            9.115807e+08           509206
-'s-Hertogenbosch                         2.697598e+08           151934
-Aa en Hunze                              4.696741e+07            25415
-Aalburg                                  2.189368e+07            12871
-Aalsmeer                                 4.864200e+07            31365
+We create a dataframe with the variables that we want to plot on the map.
 
-                  expenditure_per_head
-Municipality
-'s-Gravenhage              1790.200148
-'s-Hertogenbosch           1775.506394
-Aa en Hunze                1848.019292
-Aalburg                    1701.008568
-Aalsmeer                   1550.837018
-:END:
-
-#+NAME: bravo-pip-march-batman
 #+BEGIN_SRC ipython :session :results output drawer
 # Create a dataframe
 p_results = pd.DataFrame(dict(
@@ -971,66 +1260,23 @@ p_results = pd.DataFrame(dict(
     expenditure = results['expenditure_per_head']
     ))
 
-p_results.head()
 #+END_SRC
 
-#+RESULTS: bravo-pip-march-batman
-:RESULTS:
-#+BEGIN_EXPORT HTML
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>expenditure</th>
-      <th>municipality</th>
-    </tr>
-    <tr>
-      <th>Municipality</th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>'s-Gravenhage</th>
-      <td>1790.200148</td>
-      <td>'s-Gravenhage</td>
-    </tr>
-    <tr>
-      <th>'s-Hertogenbosch</th>
-      <td>1775.506394</td>
-      <td>'s-Hertogenbosch</td>
-    </tr>
-    <tr>
-      <th>Aa en Hunze</th>
-      <td>1848.019292</td>
-      <td>Aa en Hunze</td>
-    </tr>
-    <tr>
-      <th>Aalburg</th>
-      <td>1701.008568</td>
-      <td>Aalburg</td>
-    </tr>
-    <tr>
-      <th>Aalsmeer</th>
-      <td>1550.837018</td>
-      <td>Aalsmeer</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-#+END_EXPORT
-                  expenditure      municipality
-Municipality
-'s-Gravenhage     1790.200148     's-Gravenhage
-'s-Hertogenbosch  1775.506394  's-Hertogenbosch
-Aa en Hunze       1848.019292       Aa en Hunze
-Aalburg           1701.008568           Aalburg
-Aalsmeer          1550.837018          Aalsmeer
-:END:
+--------------
 
-#+NAME: muppet-lamp-william-minnesota
+*Exercise*
+
+What do the first 10 rows of this dataframe look like?
+
+#+BEGIN_SRC ipython
+
+#+END_SRC
+
+------------
+
+In order to plot on a map, we need the library ~folium~. Instructions on how to install it can be found [[https://github.com/python-visualization/folium][here]]. 
+
+
 #+BEGIN_SRC ipython :session :results output drawer
 from IPython.display import display, IFrame
 import folium
@@ -1066,8 +1312,10 @@ ref_map.save('health_expenditure.html')              # This will save the map in
 display(IFrame('health_expenditure.html', 800,800))  # This displays the map in an Iframe
 #+END_SRC
 
-#+RESULTS: muppet-lamp-william-minnesota
+#+RESULTS:
 :RESULTS:
+
+<IPython.lib.display.IFrame at 0x112049320>
 #+BEGIN_EXPORT HTML
 
         <iframe
@@ -1077,10 +1325,10 @@ display(IFrame('health_expenditure.html', 800,800))  # This displays the map in 
             frameborder="0"
             allowfullscreen
         ></iframe>
-
+        
 #+END_EXPORT
-<IPython.lib.display.IFrame at 0x10ff2d160>
 :END:
+
 
 -----------------
 
@@ -1102,17 +1350,16 @@ Again, we use data from [[http://www.vektis.nl/index.php/vektis-open-data][Vekti
 
 Then we look at the columns (variables) in the data.
 
-
-#+NAME: blossom-batman-uniform-princess
 #+BEGIN_SRC ipython :session :results value
 import numpy as np
 import pandas as pd
 import matplotlib as plt
 df_postal_code = pd.read_csv('Vektis_Open_Databestand_Zorgverzekeringswet_2014_-_postcode3.csv', sep = ';')
 df_postal_code.dtypes
+%matplotlib inline
 #+END_SRC
 
-#+RESULTS: blossom-batman-uniform-princess
+#+RESULTS:
 :RESULTS:
 
 GESLACHT                                   object
@@ -1142,8 +1389,6 @@ KOSTEN_OVERIG                             float64
 dtype: object
 :END:
 
-
-
 This looks very much like the data set above, so we want to do the same steps to get the data into the shape we want. In fact, if you go to the website [[http://www.vektis.nl/index.php/vektis-open-data][Vektis]] there are similar data sets for other years. Copy and paste the steps above and then apply these steps to the new data sets is asking for trouble:
 
 + you are likely to make mistakes with copy/paste
@@ -1151,12 +1396,8 @@ This looks very much like the data set above, so we want to do the same steps to
 
 One solution in python is to define a function that does all these steps for you and apply this function to all the data sets that you want to work with.
 
-#+NAME: kitten-kilo-one-july
 #+BEGIN_SRC ipython :session :results output drawer
 cost_categories_under_deductible = ['KOSTEN_MEDISCH_SPECIALISTISCHE_ZORG', 'KOSTEN_MONDZORG', 'KOSTEN_FARMACIE', 'KOSTEN_HULPMIDDELEN', 'KOSTEN_PARAMEDISCHE_ZORG_FYSIOTHERAPIE', 'KOSTEN_PARAMEDISCHE_ZORG_OVERIG', 'KOSTEN_ZIEKENVERVOER_ZITTEND', 'KOSTEN_ZIEKENVERVOER_LIGGEND', 'KOSTEN_GRENSOVERSCHRIJDENDE_ZORG', 'KOSTEN_GERIATRISCHE_REVALIDATIEZORG', 'KOSTEN_OVERIG']
-
-
-
 
 def get_data_into_shape(df):
     df['health_expenditure_under_deductible'] = df[cost_categories_under_deductible].sum(axis=1)
@@ -1190,687 +1431,90 @@ def get_data_into_shape(df):
     df['sex'] = df['sex'].astype('category')
     df['age'] = df['age'].astype('category')
     return df
-
 #+END_SRC
 
-#+RESULTS: kitten-kilo-one-july
-:RESULTS:
+Then we get the data into shape using the function just defined:
 
-:END:
-
-
-
-#+NAME: autumn-spaghetti-april-jupiter
 #+BEGIN_SRC ipython :session :results output drawer
 df_postal_code = get_data_into_shape(df_postal_code)
 #+END_SRC
 
-#+RESULTS: autumn-spaghetti-april-jupiter
-:RESULTS:
+------------
 
-:END:
+*Exercise*
 
-#+NAME: delaware-beryllium-north-three
+What do the first couple of rows look like now?
+
 #+BEGIN_SRC ipython :session :results output drawer
-df_postal_code.head()
+
 #+END_SRC
 
-#+RESULTS: delaware-beryllium-north-three
-:RESULTS:
-
-  sex age  POSTCODE_3  number_citizens  hospital_care  pharmaceuticals  \
-1   M   0         0.0              366     1372209.26         31191.20   
-2   M   0       101.0              590     1682944.17         25898.73   
-3   M   0       102.0              295     1553933.53         29514.18   
-4   M   0       103.0              288      827427.31         19263.79   
-5   M   0       105.0              998     2965316.12         61610.42   
-
-   mental_care  GP_capitation  GP_fee_for_service  GP_other  dental care  \
-1       285.98        5548.60             5540.05  11525.93       681.02   
-2     20774.91        9816.63            10130.12  20532.03         0.00   
-3      7970.01        5317.49             6576.70  17426.30        21.29   
-4       941.40        5014.97             5708.41  14168.90         0.00   
-5      4780.48       16842.06            19676.01  43794.06       166.98   
-
-   physiotherapy  maternity_care  obstetrics  \
-1       12150.91             0.0         0.0   
-2       17777.00             0.0         0.0   
-3       20459.17             0.0         0.0   
-4        9098.71             0.0         0.0   
-5       42332.18             0.0         0.0   
-
-   health_expenditure_under_deductible  
-1                           1425823.15  
-2                           1753560.87  
-3                           1617184.58  
-4                            865867.07  
-5                           3118357.71  
-#+BEGIN_EXPORT HTML
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>sex</th>
-      <th>age</th>
-      <th>POSTCODE_3</th>
-      <th>number_citizens</th>
-      <th>hospital_care</th>
-      <th>pharmaceuticals</th>
-      <th>mental_care</th>
-      <th>GP_capitation</th>
-      <th>GP_fee_for_service</th>
-      <th>GP_other</th>
-      <th>dental care</th>
-      <th>physiotherapy</th>
-      <th>maternity_care</th>
-      <th>obstetrics</th>
-      <th>health_expenditure_under_deductible</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>1</th>
-      <td>M</td>
-      <td>0</td>
-      <td>0.0</td>
-      <td>366</td>
-      <td>1372209.26</td>
-      <td>31191.20</td>
-      <td>285.98</td>
-      <td>5548.60</td>
-      <td>5540.05</td>
-      <td>11525.93</td>
-      <td>681.02</td>
-      <td>12150.91</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>1425823.15</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>M</td>
-      <td>0</td>
-      <td>101.0</td>
-      <td>590</td>
-      <td>1682944.17</td>
-      <td>25898.73</td>
-      <td>20774.91</td>
-      <td>9816.63</td>
-      <td>10130.12</td>
-      <td>20532.03</td>
-      <td>0.00</td>
-      <td>17777.00</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>1753560.87</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>M</td>
-      <td>0</td>
-      <td>102.0</td>
-      <td>295</td>
-      <td>1553933.53</td>
-      <td>29514.18</td>
-      <td>7970.01</td>
-      <td>5317.49</td>
-      <td>6576.70</td>
-      <td>17426.30</td>
-      <td>21.29</td>
-      <td>20459.17</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>1617184.58</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>M</td>
-      <td>0</td>
-      <td>103.0</td>
-      <td>288</td>
-      <td>827427.31</td>
-      <td>19263.79</td>
-      <td>941.40</td>
-      <td>5014.97</td>
-      <td>5708.41</td>
-      <td>14168.90</td>
-      <td>0.00</td>
-      <td>9098.71</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>865867.07</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>M</td>
-      <td>0</td>
-      <td>105.0</td>
-      <td>998</td>
-      <td>2965316.12</td>
-      <td>61610.42</td>
-      <td>4780.48</td>
-      <td>16842.06</td>
-      <td>19676.01</td>
-      <td>43794.06</td>
-      <td>166.98</td>
-      <td>42332.18</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>3118357.71</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-#+END_EXPORT
-:END:
-
-
+-------------
 
 The first three columns are 'sex', 'age' and 'postal code' (3 digit). These 3 variables combined determine a unique observation. We think of these observations as if they are from an individual (but an observation is an average, like the average over 18 year old males in postal code 102).
 
+--------------
 
-Note that the first postal code is '000' which python thinks of as '0.0'. The
-[[http://www.vektis.nl/images/open_data/Bijsluiter_bij_de_Vektis_Open_Databestanden_Zorgverzekeringswet_2011_-_2014.pdf][data description]] explains that postal code '000' is used to aggregate people who
-live in a postal code with so few people that the privacy of their data is no
-longer guaranteed. As we want to think of ~sex~, ~age~ and ~postal code~ as an observation, we drop the first row (labelled as ~0~) of the dataframe.
+*Exercise* 
 
-#+NAME: one-queen-arizona-venus
-#+BEGIN_SRC ipython :session :results value
-df_postal_code.drop(df_postal_code.index[[0]], inplace=True)
-df_postal_code.head()
-#+END_SRC
+What do the last 10 rows of the dataframe look like?
 
-#+RESULTS: one-queen-arizona-venus
-:RESULTS:
-
-  sex age  POSTCODE_3  number_citizens  hospital_care  pharmaceuticals  \
-2   M   0       101.0              590     1682944.17         25898.73   
-3   M   0       102.0              295     1553933.53         29514.18   
-4   M   0       103.0              288      827427.31         19263.79   
-5   M   0       105.0              998     2965316.12         61610.42   
-6   M   0       106.0             1056     3716382.22         87140.60   
-
-   mental_care  GP_capitation  GP_fee_for_service  GP_other  dental care  \
-2     20774.91        9816.63            10130.12  20532.03         0.00   
-3      7970.01        5317.49             6576.70  17426.30        21.29   
-4       941.40        5014.97             5708.41  14168.90         0.00   
-5      4780.48       16842.06            19676.01  43794.06       166.98   
-6     25006.18       19517.84            24045.35  65572.64       114.05   
-
-   physiotherapy  maternity_care  obstetrics  \
-2       17777.00             0.0         0.0   
-3       20459.17             0.0         0.0   
-4        9098.71             0.0         0.0   
-5       42332.18             0.0         0.0   
-6       28299.76             0.0         0.0   
-
-   health_expenditure_under_deductible  
-2                           1753560.87  
-3                           1617184.58  
-4                            865867.07  
-5                           3118357.71  
-6                           3885368.16  
-#+BEGIN_EXPORT HTML
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>sex</th>
-      <th>age</th>
-      <th>POSTCODE_3</th>
-      <th>number_citizens</th>
-      <th>hospital_care</th>
-      <th>pharmaceuticals</th>
-      <th>mental_care</th>
-      <th>GP_capitation</th>
-      <th>GP_fee_for_service</th>
-      <th>GP_other</th>
-      <th>dental care</th>
-      <th>physiotherapy</th>
-      <th>maternity_care</th>
-      <th>obstetrics</th>
-      <th>health_expenditure_under_deductible</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>2</th>
-      <td>M</td>
-      <td>0</td>
-      <td>101.0</td>
-      <td>590</td>
-      <td>1682944.17</td>
-      <td>25898.73</td>
-      <td>20774.91</td>
-      <td>9816.63</td>
-      <td>10130.12</td>
-      <td>20532.03</td>
-      <td>0.00</td>
-      <td>17777.00</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>1753560.87</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>M</td>
-      <td>0</td>
-      <td>102.0</td>
-      <td>295</td>
-      <td>1553933.53</td>
-      <td>29514.18</td>
-      <td>7970.01</td>
-      <td>5317.49</td>
-      <td>6576.70</td>
-      <td>17426.30</td>
-      <td>21.29</td>
-      <td>20459.17</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>1617184.58</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>M</td>
-      <td>0</td>
-      <td>103.0</td>
-      <td>288</td>
-      <td>827427.31</td>
-      <td>19263.79</td>
-      <td>941.40</td>
-      <td>5014.97</td>
-      <td>5708.41</td>
-      <td>14168.90</td>
-      <td>0.00</td>
-      <td>9098.71</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>865867.07</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>M</td>
-      <td>0</td>
-      <td>105.0</td>
-      <td>998</td>
-      <td>2965316.12</td>
-      <td>61610.42</td>
-      <td>4780.48</td>
-      <td>16842.06</td>
-      <td>19676.01</td>
-      <td>43794.06</td>
-      <td>166.98</td>
-      <td>42332.18</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>3118357.71</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>M</td>
-      <td>0</td>
-      <td>106.0</td>
-      <td>1056</td>
-      <td>3716382.22</td>
-      <td>87140.60</td>
-      <td>25006.18</td>
-      <td>19517.84</td>
-      <td>24045.35</td>
-      <td>65572.64</td>
-      <td>114.05</td>
-      <td>28299.76</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>3885368.16</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-#+END_EXPORT
-:END:
-
-The end of the dataframe is given by the following.
-
-#+NAME: finch-oven-thirteen-nine
 #+begin_src ipython :session :results value
-df_postal_code.tail(10)
+
 #+end_src
 
-#+RESULTS: finch-oven-thirteen-nine
-:RESULTS:
-       sex  age  POSTCODE_3  number_citizens  hospital_care  pharmaceuticals  \
-136463   V  90+       988.0               10       19698.83          4011.31   
-136464   V  90+       990.0              151      257046.54         99187.66   
-136465   V  90+       991.0               51       95990.43         52682.34   
-136466   V  90+       993.0              170      278000.11        124809.41   
-136467   V  90+       994.0               38       28454.41         36590.90   
-136468   V  90+       995.0               88      200183.72         64315.53   
-136469   V  90+       996.0               44       46723.13         39419.64   
-136470   V  90+       997.0               38       98954.45         34308.68   
-136471   V  90+       998.0              116      168802.54        116907.93   
-136472   V  90+       999.0               38      109842.07         40607.06   
-
-        mental_care  GP_capitation  GP_fee_for_service  GP_other  dental care  \
-136463         0.00         894.25              567.45   1283.11         0.00   
-136464     37614.24       11880.75            20144.21  24522.70      1619.74   
-136465      1102.77        4854.50            14575.32  15550.40       801.65   
-136466     12652.77       12646.44            13305.75  19040.63      2495.54   
-136467      2251.30        3652.03             5742.81  16966.62       143.16   
-136468      3691.37        6438.60            11593.30  15929.91      2729.32   
-136469      2833.17        4011.35             5459.40  15185.71       979.06   
-136470      4480.09        3347.05             5395.18   7061.51       897.98   
-136471     13830.16       10424.40            13527.80  28548.80      1577.91   
-136472      3273.62        3704.75             4197.46   6763.69        60.97   
-
-        physiotherapy  maternity_care  obstetrics  \
-136463            0.0             0.0         0.0   
-136464        12000.6             0.0         0.0   
-136465          462.0             0.0         0.0   
-136466         1675.0             0.0         0.0   
-136467         1409.2             0.0         0.0   
-136468         4352.1             0.0         0.0   
-136469         6537.2             0.0         0.0   
-136470         9201.0             0.0         0.0   
-136471         1875.6             0.0         0.0   
-136472          290.0             0.0         0.0   
-
-        health_expenditure_under_deductible  
-136463                             33079.01  
-136464                            790837.02  
-136465                            207319.25  
-136466                            535215.22  
-136467                            106569.94  
-136468                            378170.95  
-136469                            156304.71  
-136470                            193232.92  
-136471                            455608.75  
-136472                            198874.20  
-:END:
+-------------
 
 As we saw above, the datatype of ~age~ was ~object~, although we would expect ~integer~. Now we see that there is this category ~90+~, which is not an integer. We will drop this age category as it is quite special. Before we do this, let's count how many people we have in our dataset.
 
-#+NAME: comet-sodium-sink-kansas
+-------------
+
+*Exercise*
+
+Count the total number of citizens in this data set.
+
 #+BEGIN_SRC ipython :session :results output drawer
-df_postal_code['number_citizens'].sum()
+
 #+END_SRC
 
-#+RESULTS: comet-sodium-sink-kansas
-:RESULTS:
-16885677
-:END:
-
-That is, almost 17 million people, which is about right.
+-------------
 
 Let's drop the '90+' category and turn ~age~ into an integer variable.
 
-#+NAME: nevada-nevada-alpha-lithium
 #+BEGIN_SRC ipython :session :results value
 df_postal_code = df_postal_code[(df_postal_code['age'] != '90+')]
 df_postal_code['age'] = df_postal_code['age'].astype(int)
 #+END_SRC
 
-#+RESULTS: nevada-nevada-alpha-lithium
-:RESULTS:
+-------------
 
-:END:
+*Exercise*
 
-Let's summarize the variables that are numeric (integer or float). For each of these variables we have 135,063 observations (that is, combinations of ~sex~, ~age~ and ~postal code~). The mean for number of citizens is 124. With $135,063*124$ we are close to 17 million again.
+Check how many observations you have and what the data type is of each variable.
 
-#+NAME: mexico-minnesota-carbon-single
-#+BEGIN_SRC ipython :session :results value
-df_postal_code.describe()
-#+END_SRC
-
-#+RESULTS: mexico-minnesota-carbon-single
-:RESULTS:
-
-                 age     POSTCODE_3  number_citizens  hospital_care  \
-count  135063.000000  135063.000000    135063.000000   1.350630e+05   
-mean       43.753959     541.250002       123.950327   1.534887e+05   
-std        25.535582     258.016742       129.491359   1.965840e+05   
-min         0.000000       0.000000        10.000000  -2.300980e+04   
-25%        22.000000     318.000000        40.000000   3.055294e+04   
-50%        44.000000     539.000000        82.000000   8.262627e+04   
-75%        66.000000     763.000000       161.000000   2.006986e+05   
-max        89.000000     999.000000      2228.000000   5.263426e+06   
-
-       pharmaceuticals    mental_care  GP_capitation  GP_fee_for_service  \
-count     1.350630e+05  135063.000000  135063.000000       135063.000000   
-mean      3.146225e+04   23296.150212    7693.165768         4528.021995   
-std       4.483099e+04   45078.454602    7676.781993         5060.276133   
-min      -2.857890e+03  -29164.050000       0.000000            0.000000   
-25%       5.034130e+03     299.260000    2585.970000         1351.340000   
-50%       1.547225e+04    5702.020000    5244.990000         2900.080000   
-75%       4.037718e+04   24546.195000   10140.510000         5899.600000   
-max       1.546412e+06  885045.050000  155453.330000       194903.830000   
-
-            GP_other    dental care  physiotherapy  maternity_care  \
-count  135063.000000  135063.000000  135063.000000   135063.000000   
-mean     5938.297319    5438.213219    3287.127334     2201.230080   
-std      6329.471736   10190.600213    4659.495994    10426.252898   
-min         0.000000    -458.190000    -106.800000    -1898.420000   
-25%      1934.255000     150.075000     143.745000        0.000000   
-50%      4002.870000    1746.990000    1617.300000        0.000000   
-75%      7691.255000    6293.135000    4463.975000        0.000000   
-max    276119.620000  254585.130000  106169.130000   399960.460000   
-
-          obstetrics  health_expenditure_under_deductible  
-count  135063.000000                         1.350630e+05  
-mean     1612.545851                         2.192913e+05  
-std      7853.598487                         2.719250e+05  
-min         0.000000                         0.000000e+00  
-25%         0.000000                         4.791477e+04  
-50%         0.000000                         1.234374e+05  
-75%         0.000000                         2.872767e+05  
-max    321751.460000                         9.012553e+06  
-#+BEGIN_EXPORT HTML
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>age</th>
-      <th>POSTCODE_3</th>
-      <th>number_citizens</th>
-      <th>hospital_care</th>
-      <th>pharmaceuticals</th>
-      <th>mental_care</th>
-      <th>GP_capitation</th>
-      <th>GP_fee_for_service</th>
-      <th>GP_other</th>
-      <th>dental care</th>
-      <th>physiotherapy</th>
-      <th>maternity_care</th>
-      <th>obstetrics</th>
-      <th>health_expenditure_under_deductible</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>count</th>
-      <td>135063.000000</td>
-      <td>135063.000000</td>
-      <td>135063.000000</td>
-      <td>1.350630e+05</td>
-      <td>1.350630e+05</td>
-      <td>135063.000000</td>
-      <td>135063.000000</td>
-      <td>135063.000000</td>
-      <td>135063.000000</td>
-      <td>135063.000000</td>
-      <td>135063.000000</td>
-      <td>135063.000000</td>
-      <td>135063.000000</td>
-      <td>1.350630e+05</td>
-    </tr>
-    <tr>
-      <th>mean</th>
-      <td>43.753959</td>
-      <td>541.250002</td>
-      <td>123.950327</td>
-      <td>1.534887e+05</td>
-      <td>3.146225e+04</td>
-      <td>23296.150212</td>
-      <td>7693.165768</td>
-      <td>4528.021995</td>
-      <td>5938.297319</td>
-      <td>5438.213219</td>
-      <td>3287.127334</td>
-      <td>2201.230080</td>
-      <td>1612.545851</td>
-      <td>2.192913e+05</td>
-    </tr>
-    <tr>
-      <th>std</th>
-      <td>25.535582</td>
-      <td>258.016742</td>
-      <td>129.491359</td>
-      <td>1.965840e+05</td>
-      <td>4.483099e+04</td>
-      <td>45078.454602</td>
-      <td>7676.781993</td>
-      <td>5060.276133</td>
-      <td>6329.471736</td>
-      <td>10190.600213</td>
-      <td>4659.495994</td>
-      <td>10426.252898</td>
-      <td>7853.598487</td>
-      <td>2.719250e+05</td>
-    </tr>
-    <tr>
-      <th>min</th>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>10.000000</td>
-      <td>-2.300980e+04</td>
-      <td>-2.857890e+03</td>
-      <td>-29164.050000</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>-458.190000</td>
-      <td>-106.800000</td>
-      <td>-1898.420000</td>
-      <td>0.000000</td>
-      <td>0.000000e+00</td>
-    </tr>
-    <tr>
-      <th>25%</th>
-      <td>22.000000</td>
-      <td>318.000000</td>
-      <td>40.000000</td>
-      <td>3.055294e+04</td>
-      <td>5.034130e+03</td>
-      <td>299.260000</td>
-      <td>2585.970000</td>
-      <td>1351.340000</td>
-      <td>1934.255000</td>
-      <td>150.075000</td>
-      <td>143.745000</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>4.791477e+04</td>
-    </tr>
-    <tr>
-      <th>50%</th>
-      <td>44.000000</td>
-      <td>539.000000</td>
-      <td>82.000000</td>
-      <td>8.262627e+04</td>
-      <td>1.547225e+04</td>
-      <td>5702.020000</td>
-      <td>5244.990000</td>
-      <td>2900.080000</td>
-      <td>4002.870000</td>
-      <td>1746.990000</td>
-      <td>1617.300000</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>1.234374e+05</td>
-    </tr>
-    <tr>
-      <th>75%</th>
-      <td>66.000000</td>
-      <td>763.000000</td>
-      <td>161.000000</td>
-      <td>2.006986e+05</td>
-      <td>4.037718e+04</td>
-      <td>24546.195000</td>
-      <td>10140.510000</td>
-      <td>5899.600000</td>
-      <td>7691.255000</td>
-      <td>6293.135000</td>
-      <td>4463.975000</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>2.872767e+05</td>
-    </tr>
-    <tr>
-      <th>max</th>
-      <td>89.000000</td>
-      <td>999.000000</td>
-      <td>2228.000000</td>
-      <td>5.263426e+06</td>
-      <td>1.546412e+06</td>
-      <td>885045.050000</td>
-      <td>155453.330000</td>
-      <td>194903.830000</td>
-      <td>276119.620000</td>
-      <td>254585.130000</td>
-      <td>106169.130000</td>
-      <td>399960.460000</td>
-      <td>321751.460000</td>
-      <td>9.012553e+06</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-#+END_EXPORT
-:END:
-
-#+NAME: bakerloo-lemon-edward-mike
 #+BEGIN_SRC ipython :session
-df_postal_code.info()
+
 #+END_SRC
 
-#+RESULTS: bakerloo-lemon-edward-mike
-:RESULTS:
-<class 'pandas.core.frame.DataFrame'>
-Int64Index: 135063 entries, 2 to 135741
-Data columns (total 15 columns):
-sex                                    135063 non-null category
-age                                    135063 non-null int64
-POSTCODE_3                             135063 non-null float64
-number_citizens                        135063 non-null int64
-hospital_care                          135063 non-null float64
-pharmaceuticals                        135063 non-null float64
-mental_care                            135063 non-null float64
-GP_capitation                          135063 non-null float64
-GP_fee_for_service                     135063 non-null float64
-GP_other                               135063 non-null float64
-dental care                            135063 non-null float64
-physiotherapy                          135063 non-null float64
-maternity_care                         135063 non-null float64
-obstetrics                             135063 non-null float64
-health_expenditure_under_deductible    135063 non-null float64
-dtypes: category(1), float64(12), int64(2)
-memory usage: 15.6 MB
-:END:
-
-
+-------------
 
 Now let's define the costs per head. For each observation, we divide the total health care costs (under the deductible) for a combination of ~sex~, ~age~ and ~postal code~ by the number of people in this combination of ~sex~, ~age~ and ~postal code~. This gives the health costs per head.
 
-#+NAME: may-three-carpet-texas
+
+------------
+
+*Exercise*
+
+Define health care costs per head:
+
 #+BEGIN_SRC ipython :session :results output drawer
-df_postal_code['health_costs_per_head'] = df_postal_code['health_expenditure_under_deductible']/df_postal_code['number_citizens']
+df_postal_code['health_costs_per_head'] 
 #+END_SRC
+
+------------
 
 So for, say, 18 year old males, we have a distribution of costs per head over the different ~postal codes~. For each combination of age and sex, we can look at the average expenditure. With ~pandas~ this is easy to do. We use ~groupby~, specify the dimensions over which we want to group, the variable we are interested in and give the function to aggregate (mean, in this case).
 
-#+NAME: edward-minnesota-social-equal
 #+BEGIN_SRC ipython :session :results output drawer
 costs_per_sex_age = df_postal_code.groupby(['sex','age'])['health_costs_per_head'].mean()
 #+END_SRC
@@ -1880,7 +1524,6 @@ costs_per_sex_age = df_postal_code.groupby(['sex','age'])['health_costs_per_head
 
 Then we can plot this distribution of health care expenditure per head with age for males and females.
 
-#+NAME: london-nuts-mirror-carbon
 #+BEGIN_SRC ipython :session
 import matplotlib.pyplot as plt
 plt.style.use('seaborn')
@@ -1894,9 +1537,12 @@ ax.legend(['male','female'])
 fig.savefig("males.png")
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
 
-[[./males.png]]
-
+<matplotlib.figure.Figure at 0x1160f2128>
+[[file:ipython-inline-images/ob-ipython-ed4630fbf88b4d768e6c088e1a164c48.png]]
+:END:
 
 -----------------
 
@@ -1918,7 +1564,6 @@ fig.savefig("obstetrics.png")
 
 We can plot a histogram of the distribution of hospital care expenditure across postal code areas.
 
-#+NAME: cola-sink-leopard-nebraska
 #+BEGIN_SRC ipython :session
 hospital_care_expenditure = df_postal_code.groupby(['age','POSTCODE_3'])['hospital_care'].sum()
 
@@ -1927,6 +1572,13 @@ plt.hist(hospital_care_expenditure[7],normed = True, bins = 100)
 plt.show()
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+
+<matplotlib.figure.Figure at 0x1160eecf8>
+[[file:ipython-inline-images/ob-ipython-64e58813edd375ce91c46e28b1678528.png]]
+:END:
+
 
 ------------
 
@@ -1934,8 +1586,6 @@ plt.show()
 
 In which fraction of postal code areas does hospital expenditures on 50 year olds exceed 50000 euro? Finish the following code block to find out.
 
-
-#+NAME: juliet-sweet-item-vermont
 #+BEGIN_SRC ipython :session
 sum()/len()
 #+END_SRC
@@ -1945,8 +1595,6 @@ sum()/len()
 
 Suppose you are interested in the effect of the deductible on health care expenditure. Why would the following graph help for this?
 
-
-#+NAME: grey-october-xray-red
 #+BEGIN_SRC ipython :session :results output drawer
 plt.style.use('seaborn')
 plt.clf()
@@ -1961,7 +1609,12 @@ fig.savefig('fig14to22.png')
 
 #+END_SRC
 
-[[./fig14to22.png]]
+#+RESULTS:
+:RESULTS:
+
+<matplotlib.figure.Figure at 0x112e4a400>
+[[file:ipython-inline-images/ob-ipython-3f8b13293b77ed38b1a42591450b752d.png]]
+:END:
 
 
 ** plotly
@@ -1970,7 +1623,6 @@ Instead of ~matplotlib~ to plot, we can also use ~plotly~. With ~plotly~ you can
 
 We are going to plot the cumulative distribution functions of health care expenditure for different age groups. We first define the cumulative distribution function ~ecdf~.
 
-#+NAME: whiskey-south-stream-speaker
 #+BEGIN_SRC ipython :session :results output drawer
 def ecdf(data):
     x = np.sort(data)
@@ -1978,9 +1630,13 @@ def ecdf(data):
     return x, y
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+
+:END:
+
 Then we define the $x$ and $y$ coordinates of the functions we want to plot: the ~ecdf~ of health care expenditures for ages 16, 17, 19 and 20.
 
-#+NAME: seventeen-four-ceiling-hotel
 #+BEGIN_SRC ipython :session :results output drawer
 x_16, y_16 = ecdf(df_postal_code.health_costs_per_head[(df_postal_code['age'] == 16)])
 x_17, y_17 = ecdf(df_postal_code.health_costs_per_head[(df_postal_code['age'] == 17)])
@@ -1990,19 +1646,26 @@ x_20, y_20 = ecdf(df_postal_code.health_costs_per_head[(df_postal_code['age'] ==
 
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+
+:END:
 
 We import plotly.
 
-#+NAME: colorado-utah-ink-virginia
 #+BEGIN_SRC ipython :session :results output drawer
 import plotly.plotly as py
 from plotly.graph_objs import *
 import plotly.tools as tls
 #+END_SRC
 
+#+RESULTS:
+:RESULTS:
+
+:END:
+
 Finally, we define the graph itself. We specify the "Scatter's" and the layout. The web address can be used if you want to include this graph in a presentation.
 
-#+NAME: artist-mockingbird-florida-hot
 #+BEGIN_SRC ipython :session :results output drawer
 age16 = Scatter(
     x=x_16,
@@ -2056,16 +1719,14 @@ py.plot(fig, filename='Distribution functions of health care expenditure per hea
 tls.embed("https://plot.ly/~janboone/301")
 #+END_SRC
 
-#+RESULTS: artist-mockingbird-florida-hot
+#+RESULTS:
 :RESULTS:
+
+<plotly.tools.PlotlyDisplay object>
 #+BEGIN_EXPORT HTML
 <iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="https://plot.ly/~janboone/301.embed" height="525" width="100%"></iframe>
 #+END_EXPORT
-<plotly.tools.PlotlyDisplay object>
 :END:
-
-
-
 
 * A first look at machine learning
 
@@ -2080,42 +1741,16 @@ import numpy as np
 import pandas as pd
 import matplotlib as plt
 df_postal_code = pd.read_csv('Vektis_Open_Databestand_Zorgverzekeringswet_2014_-_postcode3.csv', sep = ';')
-df_postal_code.dtypes
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
 
-GESLACHT                                   object
-LEEFTIJDSKLASSE                            object
-POSTCODE_3                                float64
-AANTAL_BSN                                  int64
-AANTAL_VERZEKERDEJAREN                    float64
-KOSTEN_MEDISCH_SPECIALISTISCHE_ZORG       float64
-KOSTEN_FARMACIE                           float64
-KOSTEN_TWEEDELIJNS_GGZ                    float64
-KOSTEN_HUISARTS_INSCHRIJFTARIEF           float64
-KOSTEN_HUISARTS_CONSULT                   float64
-KOSTEN_HUISARTS_OVERIG                    float64
-KOSTEN_HULPMIDDELEN                       float64
-KOSTEN_MONDZORG                           float64
-KOSTEN_PARAMEDISCHE_ZORG_FYSIOTHERAPIE    float64
-KOSTEN_PARAMEDISCHE_ZORG_OVERIG           float64
-KOSTEN_ZIEKENVERVOER_ZITTEND              float64
-KOSTEN_ZIEKENVERVOER_LIGGEND              float64
-KOSTEN_KRAAMZORG                          float64
-KOSTEN_VERLOSKUNDIGE_ZORG                 float64
-KOSTEN_GENERALISTISCHE_BASIS_GGZ          float64
-KOSTEN_GRENSOVERSCHRIJDENDE_ZORG          float64
-KOSTEN_EERSTELIJNS_ONDERSTEUNING          float64
-KOSTEN_GERIATRISCHE_REVALIDATIEZORG       float64
-KOSTEN_OVERIG                             float64
-dtype: object
 :END:
+
 
 We now use a slightly different way to get the data into shape and hence we rename the function.
 
-#+NAME: kitten-kilo-one-july
 #+BEGIN_SRC ipython :session :results output drawer
 def get_data_into_shape_2(df):
     df = df.rename_axis({
@@ -2149,25 +1784,31 @@ def get_data_into_shape_2(df):
 
 #+END_SRC
 
-#+RESULTS: kitten-kilo-one-july
+#+RESULTS:
 :RESULTS:
 
 :END:
-
-
 With the function above, we first get the data into the shape that we want.
 
-#+NAME: autumn-spaghetti-april-jupiter
 #+BEGIN_SRC ipython :session :results output drawer
 df_postal_code = get_data_into_shape_2(df_postal_code)
 #+END_SRC
 
-We are going to consider the ages 25 and 70. As age can be integer or string, we include both in the list of age-values that we wish to select.
+#+RESULTS:
+:RESULTS:
 
+:END:
+
+We are going to consider the ages 25 and 70. As age can be integer or string, we include both in the list of age-values that we wish to select.
 
 #+BEGIN_SRC ipython :session
 df_25_70 = df_postal_code[df_postal_code['age'].isin(['25','70', 25, 70])]
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+
+:END:
 
 We define the groups as "25M" for 25 year old males. In order to add the columns "sex" and "age", they need to be strings as in python adding the strings `"abc"+"def"` yields `"abcdef"`; which is exactly what we want.
 
@@ -2177,6 +1818,11 @@ df_25_70.sex = df_25_70.sex.astype('str')
 df_25_70['target'] = df_25_70.age+df_25_70.sex
 
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+
+:END:
 
 This combination of age and sex (4 categories) is the variable that we want to predict. Hence, we call the variable `target`. We turn `target` into a category and find that there are indeed 4 of these categories.
 
@@ -2194,8 +1840,22 @@ Index(['25.0M', '25V', '70M', '70V'], dtype='object')
 With `.cat.codes` we turn our categories into integers 0, 1, 2, 3. 
 
 #+BEGIN_SRC ipython :session
-df_25_70['target'].cat.codes
+df_25_70['target'].cat.codes.describe()
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+
+count    3031.000000
+mean        1.501815
+std         1.119250
+min         0.000000
+25%         0.000000
+50%         2.000000
+75%         3.000000
+max         3.000000
+dtype: float64
+:END:
 
 We redefine expenditures in each care category as per head expenditure in the 3 digit postal code area. We then think of each area as being an "individual". Based on the individuals expenditure per care category, we predict age and sex. The following code redefines for each care category the total expenditure into an expenditure per head.
 
@@ -2205,158 +1865,24 @@ care_categories = ['hospital_care', 'pharmaceuticals', 'mental_care', 'GP_capita
 for variable in care_categories:
     df_25_70[variable] = df_25_70[variable]/df_25_70['number_citizens']
 
-df_25_70.head()
 #+END_SRC
 
 #+RESULTS:
 :RESULTS:
 
-      sex   age  POSTCODE_3  number_citizens  hospital_care  pharmaceuticals  \
-13802   M  25.0         0.0              235     421.241149        48.540128   
-13803   M  25.0       101.0             1042     280.514837        54.957889   
-13804   M  25.0       102.0              302     280.264238        56.674834   
-13805   M  25.0       103.0              325     527.719046        51.940738   
-13806   M  25.0       105.0             1318     383.394932        69.232117   
-
-       mental_care  GP_capitation  GP_fee_for_service   GP_other  dental_care  \
-13802   565.833574      53.478723           15.990043  42.183702     1.607149   
-13803   131.044347      51.035441           16.187322  33.947015     3.483599   
-13804    54.191556      53.066325           15.761258  29.762450     0.000000   
-13805   994.862554      53.742369           18.363385  34.537046     1.208769   
-13806   210.617398      52.937853           17.693247  32.583392     2.972602   
-
-       physiotherapy  maternity_care  obstetrics  geriatrics target  
-13802       1.490255             0.0         0.0         0.0  25.0M  
-13803       8.594050             0.0         0.0         0.0  25.0M  
-13804      22.604437             0.0         0.0         0.0  25.0M  
-13805      10.232308             0.0         0.0         0.0  25.0M  
-13806       8.429659             0.0         0.0         0.0  25.0M  
-#+BEGIN_EXPORT HTML
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>sex</th>
-      <th>age</th>
-      <th>POSTCODE_3</th>
-      <th>number_citizens</th>
-      <th>hospital_care</th>
-      <th>pharmaceuticals</th>
-      <th>mental_care</th>
-      <th>GP_capitation</th>
-      <th>GP_fee_for_service</th>
-      <th>GP_other</th>
-      <th>dental_care</th>
-      <th>physiotherapy</th>
-      <th>maternity_care</th>
-      <th>obstetrics</th>
-      <th>geriatrics</th>
-      <th>target</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>13802</th>
-      <td>M</td>
-      <td>25.0</td>
-      <td>0.0</td>
-      <td>235</td>
-      <td>421.241149</td>
-      <td>48.540128</td>
-      <td>565.833574</td>
-      <td>53.478723</td>
-      <td>15.990043</td>
-      <td>42.183702</td>
-      <td>1.607149</td>
-      <td>1.490255</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>25.0M</td>
-    </tr>
-    <tr>
-      <th>13803</th>
-      <td>M</td>
-      <td>25.0</td>
-      <td>101.0</td>
-      <td>1042</td>
-      <td>280.514837</td>
-      <td>54.957889</td>
-      <td>131.044347</td>
-      <td>51.035441</td>
-      <td>16.187322</td>
-      <td>33.947015</td>
-      <td>3.483599</td>
-      <td>8.594050</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>25.0M</td>
-    </tr>
-    <tr>
-      <th>13804</th>
-      <td>M</td>
-      <td>25.0</td>
-      <td>102.0</td>
-      <td>302</td>
-      <td>280.264238</td>
-      <td>56.674834</td>
-      <td>54.191556</td>
-      <td>53.066325</td>
-      <td>15.761258</td>
-      <td>29.762450</td>
-      <td>0.000000</td>
-      <td>22.604437</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>25.0M</td>
-    </tr>
-    <tr>
-      <th>13805</th>
-      <td>M</td>
-      <td>25.0</td>
-      <td>103.0</td>
-      <td>325</td>
-      <td>527.719046</td>
-      <td>51.940738</td>
-      <td>994.862554</td>
-      <td>53.742369</td>
-      <td>18.363385</td>
-      <td>34.537046</td>
-      <td>1.208769</td>
-      <td>10.232308</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>25.0M</td>
-    </tr>
-    <tr>
-      <th>13806</th>
-      <td>M</td>
-      <td>25.0</td>
-      <td>105.0</td>
-      <td>1318</td>
-      <td>383.394932</td>
-      <td>69.232117</td>
-      <td>210.617398</td>
-      <td>52.937853</td>
-      <td>17.693247</td>
-      <td>32.583392</td>
-      <td>2.972602</td>
-      <td>8.429659</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>25.0M</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-#+END_EXPORT
 :END:
 
+------------
+
+*Exercise*
+
+Get a sense of what the dataframe ~df_25_70~ looks like.
+
+#+BEGIN_SRC ipython
+
+#+END_SRC
+
+------------
 
 The variable `target` is the variable we would like to predict. Hence, we call it $y$. We choose a subset of health care expenditure categories (you can experiment with this yourself) as predictors (independent variables) and denote the variables in this subset by $X$.
 
@@ -2368,6 +1894,11 @@ X = df_25_70[subset_care_categories]
 
 
 #+END_SRC
+
+#+RESULTS:
+:RESULTS:
+
+:END:
 
 In this version of the notebook we use four cost categories to separate the different age-sex types. The algorithm below makes this separation in four dimensional space. To get a first intuition, we can consider the data points in two dimensional space, using pairwise combinations of the cost categories. The function `scatter_matrix` does this for each pairwise combination of the cost categories. By turning the variable `target` into integers 0,1,2,3 we can use this variable to color the points. Each category has its own color. For this translation to integers, we use the `.cat.codes` attribute that we saw above.
 
@@ -2390,8 +1921,8 @@ scatter_matrix(
 #+RESULTS:
 :RESULTS:
 
-<matplotlib.figure.Figure at 0x10cfe5c88>
-[[file:ipython-inline-images/ob-ipython-839aaf4e559c09388a0b7de83fa61130.png]]
+<matplotlib.figure.Figure at 0x1181a97f0>
+[[file:ipython-inline-images/ob-ipython-62adec572a7ca42ad399286802750a6b.png]]
 :END:
 
 In order to classify points, we use the k-neighbours method. The idea is as follows. To classify a point, we consider its $k$ closest neighbours. If the majority of these neighbours have label, say '70M', then we classify this point also as '70M'.
@@ -2417,7 +1948,7 @@ print(knn.score(X_test, y_test))
 
 #+RESULTS:
 :RESULTS:
-0.77032967033
+0.724175824176
 
 :END:
 
@@ -2445,20 +1976,19 @@ scatter_matrix(
 #+RESULTS:
 :RESULTS:
 
-<matplotlib.figure.Figure at 0x120f415c0>
-[[file:ipython-inline-images/ob-ipython-59e2750aa18291b80acb71d3a3dfbf1a.png]]
+<matplotlib.figure.Figure at 0x117e74208>
+[[file:ipython-inline-images/ob-ipython-750d2b1f1e0f64b2d020a05afec10ef2.png]]
 :END:
 
-#+BEGIN_SRC ipython :session
-X_train, X_test, y_train, y_test = train_test_split(X_f, y_f, test_size=0.3, random_state=21, stratify=y_f)
-knn = KNeighborsClassifier(n_neighbors=8)
-knn.fit(X_train, y_train)
-y_pred = knn.predict(X_test)
-print(knn.score(X_test, y_test))
+
+------------
+
+*Exercise*
+
+Use the $k$-neighbors method from above on the data $X_f,y_f$. That is, split the data into test and training sets, fit the model on the training data and then show that on the test data you get a score close to 100%.
+
+#+BEGIN_SRC ipython
+
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-0.991169977925
-
-:END:
+------------
