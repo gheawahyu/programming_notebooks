@@ -1,0 +1,24 @@
+name: programming_notebooks
+
+dependencies:
+  - python=3.6
+  - numpy
+  - pandas
+  - matplotlib
+  - IPython.display
+  - folium
+  - bokeh
+  - plotly
+  - sklearn
+  - pandas-datareader
+  - datetime
+  - ipywidgets
+  - requests
+  - lxml
+  - cssselect
+  - xlrd
+  - openpyxl
+  - seaborn
+  - wbdata
+  - sympy
+  - scipy
