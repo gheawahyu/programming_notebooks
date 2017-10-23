@@ -32,7 +32,7 @@ import pandas as pd
 df_gemeente = pd.read_csv('Vektis_Open_Databestand_Zorgverzekeringswet_2014_-_gemeente.csv', sep = ';')
 
 df_gemeente.head(10)
-
+import matplotlib.pyplot as plt
 %matplotlib inline
 #+END_SRC
 
@@ -298,33 +298,6 @@ df_gemeente.head()
 #+RESULTS:
 :RESULTS:
 
-  sex             age   MUNICIPALITY  number_citizens  hospital_care  \
-1   M   0 t/m  4 jaar    AA EN HUNZE              507      473370.77   
-2   M   0 t/m  4 jaar        AALBURG              428      340442.37   
-3   M   0 t/m  4 jaar       AALSMEER              876      932841.57   
-4   M   0 t/m  4 jaar         AALTEN              667      515879.78   
-5   M   0 t/m  4 jaar  ACHTKARSPELEN              810      766456.80   
-
-   pharmaceuticals  mental_care  GP_capitation  GP_fee_for_service  GP_other  \
-1         43305.49     14056.81       26239.56            12829.29  36034.65   
-2         23395.86      5555.83       21673.15             9417.98  20159.19   
-3         54597.52     34355.66       43971.27            22413.37  61629.32   
-4         43516.71      2404.19       33749.10            18472.64  46720.61   
-5         88084.16      6681.81       41477.79            19157.34  53633.01   
-
-   dental care  physiotherapy  maternity_care  obstetrics  \
-1      9311.14       15968.80             0.0         0.0   
-2      7213.81        6135.05             0.0         0.0   
-3     19042.00       20086.43             0.0         0.0   
-4     12909.41       20762.75             0.0         0.0   
-5     16695.10       23423.96             0.0         0.0   
-
-   health_expenditure_under_deductible  
-1                            576750.31  
-2                            406856.55  
-3                           1093297.37  
-4                            652523.86  
-5                            954494.16  
 #+BEGIN_EXPORT HTML
 <div>
 <table border="1" class="dataframe">
@@ -443,6 +416,33 @@ df_gemeente.head()
 </table>
 </div>
 #+END_EXPORT
+  sex             age   MUNICIPALITY  number_citizens  hospital_care  \
+1   M   0 t/m  4 jaar    AA EN HUNZE              507      473370.77   
+2   M   0 t/m  4 jaar        AALBURG              428      340442.37   
+3   M   0 t/m  4 jaar       AALSMEER              876      932841.57   
+4   M   0 t/m  4 jaar         AALTEN              667      515879.78   
+5   M   0 t/m  4 jaar  ACHTKARSPELEN              810      766456.80   
+
+   pharmaceuticals  mental_care  GP_capitation  GP_fee_for_service  GP_other  \
+1         43305.49     14056.81       26239.56            12829.29  36034.65   
+2         23395.86      5555.83       21673.15             9417.98  20159.19   
+3         54597.52     34355.66       43971.27            22413.37  61629.32   
+4         43516.71      2404.19       33749.10            18472.64  46720.61   
+5         88084.16      6681.81       41477.79            19157.34  53633.01   
+
+   dental care  physiotherapy  maternity_care  obstetrics  \
+1      9311.14       15968.80             0.0         0.0   
+2      7213.81        6135.05             0.0         0.0   
+3     19042.00       20086.43             0.0         0.0   
+4     12909.41       20762.75             0.0         0.0   
+5     16695.10       23423.96             0.0         0.0   
+
+   health_expenditure_under_deductible  
+1                            576750.31  
+2                            406856.55  
+3                           1093297.37  
+4                            652523.86  
+5                            954494.16  
 :END:
 
 :RESULTS:
@@ -947,6 +947,78 @@ display(IFrame('health_expenditure.html', 800,800))  # This displays the map in 
 Plot number of citizens per municipality using color scheme 'OrRd'.
 
 ----------------
+
+
+
+** relation costs per head and number of citizens
+
+Let us consider the relation between health and the size of a municipality. First, import matplotlib so that we can plot some data.
+
+#+BEGIN_SRC ipython :session
+import matplotlib.pyplot as plt
+%matplotlib inline
+#+END_SRC
+
+We define ~expenditure_per_head~ as we did above.
+
+#+BEGIN_SRC ipython :session :results output drawer
+df_gemeente['expenditure_per_head'] = df_gemeente['health_expenditure_under_deductible']/df_gemeente['number_citizens']
+#+END_SRC
+
+Let us plot for each age category the average number of citizens per municipality for males (for females this is similar). 
+
+#+BEGIN_SRC ipython :session
+df_gemeente.loc[(df_gemeente.sex=='M')].groupby(['age'])['number_citizens'].mean().plot(rot = 45)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+
+<matplotlib.axes._subplots.AxesSubplot at 0x116586e48>
+[[file:ipython-inline-images/ob-ipython-22cdb9ea8f83a9d7a075fbeaf8778ecb.png]]
+<matplotlib.figure.Figure at 0x11660d6d8>
+:END:
+
+Hence till the age of 70, there are more than 1000 citizens of an age category on average in a municipality.
+
+Now we consider (for both men and women), the number of citizens per age category in the municipality with the lowest health care expenditure per head for this age category. As you can see in the figures below, the number of citizens per age category is way below the average (which was above 1000 citizens per age category as we saw above). Hence, living in a small (i.e. rural) municipality is good for your health!
+
+#+BEGIN_SRC ipython :session :results output drawer
+df_healthy_municipality = df_gemeente.loc[df_gemeente.groupby(['age','sex'])['expenditure_per_head'].idxmin()][['sex','age','number_citizens']].set_index('age')
+
+df_healthy_municipality.loc[(df_healthy_municipality.sex == 'M')].plot(title='number of citizens in the lowest cost municipality per age category for men', rot = 45)
+df_healthy_municipality.loc[(df_healthy_municipality.sex == 'V')].plot(title='number of citizens in the lowest cost municipality per age category for women',rot = 45)
+
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+
+<matplotlib.axes._subplots.AxesSubplot at 0x11702f9e8>
+[[file:ipython-inline-images/ob-ipython-c203d148759c22c16514bb92635706a8.png]]
+<matplotlib.figure.Figure at 0x116d815f8>
+[[file:ipython-inline-images/ob-ipython-1895e530f95594c186cc0d8a55359521.png]]
+<matplotlib.figure.Figure at 0x116d814e0>
+:END:
+
+
+Or is something else going on?
+
+#+BEGIN_SRC ipython :session
+age = '75 t/m 79 jaar'
+
+plt.scatter(df_gemeente.loc[(df_gemeente.age == age)].number_citizens,df_gemeente.loc[(df_gemeente.age == age)].expenditure_per_head)
+
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+
+<matplotlib.collections.PathCollection at 0x1171932b0>
+[[file:ipython-inline-images/ob-ipython-c6fe26270822d5ab3631903d1ce5b018.png]]
+<matplotlib.figure.Figure at 0x116c50fd0>
+:END:
+
 
 
 
